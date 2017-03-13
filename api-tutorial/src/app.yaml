@@ -7,10 +7,8 @@ handlers:
 # Apps send requests to /_ah/api, but the endpoints service handles mapping
 # those requests to /_ah/spi.
 
-- url: /_ah/spi/ad_api
-  script: ad_api.api
 
-- url: /_ah/spi/dateset_api
+- url: /_ah/spi/.*
   script: dataset_api.api
   
 libraries:
