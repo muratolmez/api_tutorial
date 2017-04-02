@@ -27,59 +27,83 @@ class AdModel(ndb.Model):
     ad_city = ndb.StringProperty(required = True)
     ad_ilce = ndb.StringProperty(required = True)
     ad_created_date = ndb.DateTimeProperty()
-    ad_created_date = ndb.DateTimeProperty(required = True)
+    ad_start_date = ndb.DateTimeProperty(required = True)
     ad_finish_date = ndb.DateTimeProperty(required = True)
     ad_status=ndb.BooleanProperty(required = True)
     
 class AdList(messages.Message):
     ads = messages.MessageField(Ad,1,repeated = True)
-    
-@endpoints.api(name = 'adProfile', version='vGDL',
-               description='API For Ad')    
 
-class Ad_Api(remote.Service):
-    @endpoints.method(Ad,Ad,
-                      name='ad.insert',
-                      path='ad_insert',
-                      http_method= 'POST')
+
+class Response(messages.Message):
+    ok = messages.IntegerField(1)
+
+
+
+@api_collection.api_class(resource_name='AdvertTransactions')
+class AdvertInsert(remote.Service):
+    @endpoints.method(Ad, Response,
+                      name='advert_put',
+                      path='advert_put',
+                      http_method='POST')
     
-    def ad_insert(self,request):
-        AdModel(
-                  ad_title = request.ad_title,
-                  ad_owner = request.ad_owner,
-                  ad_info = request.info,
-                  ad_cost = request.ad_cost,
-                  ad_city = request.ad_city,
-                  ad_ilce = request.ad_ilce,
-                  ad_created_date = request.ad_created_date,
-                  ad_start_date = request.ad_start_date,
-                  ad_finish_date = request.ad_finish_date,
-                  ad_status = request.ad_status).put()
-        return request
-    
-    @endpoints.method(message_types.VoidMessage,AdList,
-                      name='ad.list',
-                      path= 'ad_list',
-                      http_method='GET')
-    
-    def ad_list(self,unused_request):
-        ads_list = []
-        for ad in AdModel.query():
-            ads_list.append(Ad(
-                  ad_title = ad.ad_title,
-                  ad_owner = ad.ad_owner,
-                  ad_info = ad.info,
-                  ad_cost = ad.ad_cost,
-                  ad_city = ad.ad_city,
-                  ad_ilce = ad.ad_ilce,
-                  ad_created_date = ad.ad_created_date,
-                  ad_start_date = ad.ad_start_date,
-                  ad_finish_date = ad.ad_finish_date,
-                  ad_status = ad.ad_status))
+    def advert_insert(self, request):
         
-        return AdList(ads=ads_list)
+        AdModel(ad_title=request.ad_title,
+                  ad_owner=request.ad_owner,
+                  ad_info=request.ad_info,
+                  ad_cost=request.ad_cost,
+                  ad_city=request.ad_city,
+                  ad_ilce=request.ad_ilce,
+                  ad_created_date=request.ad_created_date,
+                  ad_start_date=request.ad_start_date,
+                  ad_finish_date=request.ad_finish_date,
+                  ad_status=request.ad_status,
+                  
+           ).put()
+
+        return Response(ok=httplib.OK)
     
-api = endpoints.api_server([Ad_Api])
+
+@api_collection.api_class(resource_name='AdvertTransactions')
+class AdvertGet(remote.Service):
+    GET_RESOURCE = endpoints.ResourceContainer(
+        # The request body should be empty.
+        message_types.VoidMessage,
+        # Accept one url parameter: an integer named 'id'
+    ad_title = messages.StringField(1,required = True),
+    ad_owner = messages.StringField(2,required = True),
+    ad_info = messages.StringField(3,required = True),
+    ad_cost = messages.IntegerField(4,required = True),
+    ad_city = messages.StringField(5,required = True),
+    ad_ilce = messages.StringField(6,required = True),
+    ad_created_date= message_types.DateTimeField(7),
+    ad_start_date=message_types.DateTimeField(8,required=True),
+    ad_finish_date=message_types.DateTimeField(9,required = True),
+    ad_status = messages.BooleanField(10))
+
+    @endpoints.method(GET_RESOURCE, AdList,
+                      name='advert_get',
+                      path='advert_get/{advert.id()}',
+                      http_method='GET')
+    def ad_get(self,request):
+        q = AdModel.query(AdModel.id == request.id()).fetch()
+
+        a = Ad()
+        a.ad_title = q[0].ad_title;
+        a.ad_owner=q[0].ad_owner;
+        a.ad_info=q[0].ad_info;
+        a.ad_cost=q[0].ad_cost;
+        a.ad_city=q[0].ad_city;
+        a.ad_ilce=q[0].ad_ilce;
+        a.ad_created_date=q[0].ad_created_date;
+        a.ad_start_date=q[0].ad_start_date;
+        a.ad_finish_date=q[0].ad_finish_date;
+        a.ad_status=q[0].ad_status;
+        return AdList(ads=a)
+
+
+api = endpoints.api_server([AdvertInsert,AdvertGet])
     
     
     
