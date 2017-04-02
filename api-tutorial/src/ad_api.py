@@ -3,6 +3,8 @@ from protorpc import messages, message_types
 from protorpc import remote
 from time import time
 
+import httplib
+
 from google.appengine.ext import ndb
 
 class Ad(messages.Message):
