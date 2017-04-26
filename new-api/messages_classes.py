@@ -1,16 +1,14 @@
-from protorpc import message_types
 from protorpc import messages
 
 
 class UserMessage(messages.Message):
     auth_id = messages.StringField(1, required=True)
     name = messages.StringField(2, required=True)
-    surname = messages.StringField(3, required=True)
-    email = messages.StringField(4, required=True)
-    city = messages.StringField(5, required=True)
-    phone = messages.IntegerField(6, required=True)
-    birthday = messages.StringField(7)
-    rank = messages.IntegerField(8)
+    email = messages.StringField(3, required=True)
+    city = messages.StringField(4, required=True)
+    phone = messages.StringField(5, required=True)
+    birthday = messages.StringField(6)
+    rank = messages.IntegerField(7)
 
 
 class UserMessageEmail(messages.Message):
@@ -35,11 +33,11 @@ class AdvertMessage(messages.Message):
     info = messages.StringField(3, required=True)
     cost = messages.IntegerField(4, required=True)
     city = messages.StringField(5, required=True)
-    district = messages.StringField(6, required=True)
-    created_date = message_types.DateTimeField(7)
-    start_date = message_types.DateTimeField(8, required=True)
-    finish_date = message_types.DateTimeField(9, required=True)
-    status = messages.BooleanField(10, default=True)
+    created_date = messages.StringField(6)
+    start_date = messages.StringField(7, required=True)
+    finish_date = messages.StringField(8, required=True)
+    status = messages.BooleanField(9, default=True)
+
 
 class AdvertMessageList(messages.Message):
     id = messages.IntegerField(11, required=True)
@@ -48,11 +46,10 @@ class AdvertMessageList(messages.Message):
     info = messages.StringField(3, required=True)
     cost = messages.IntegerField(4, required=True)
     city = messages.StringField(5, required=True)
-    district = messages.StringField(6, required=True)
-    created_date = message_types.DateTimeField(7)
-    start_date = message_types.DateTimeField(8, required=True)
-    finish_date = message_types.DateTimeField(9, required=True)
-    status = messages.BooleanField(10, default=True)
+    created_date = messages.StringField(6)
+    start_date = messages.StringField(7, required=True)
+    finish_date = messages.StringField(8, required=True)
+    status = messages.BooleanField(9, default=True)
 
 
 class AdvertMessageInfo(messages.Message):
@@ -64,11 +61,11 @@ class AdvertMessageCost(messages.Message):
 
 
 class AdvertMessageFinishDate(messages.Message):
-    finish_date = message_types.DateTimeField(1, required=True)
+    finish_date = messages.StringField(1, required=True)
 
 
 class AdvertMessageStartDate(messages.Message):
-    start_date = message_types.DateTimeField(1, required=True)
+    start_date = messages.StringField(1, required=True)
 
 
 class AdvertMessageStatus(messages.Message):
@@ -80,4 +77,4 @@ class AdvertGetResponse(messages.Message):
 
 
 class AdvertListResponse(messages.Message):
-    advert_list_response = messages.MessageField(AdvertMessage, 1, required=True)
+    advert_list_response = messages.MessageField(AdvertMessageList, 1, required=True)

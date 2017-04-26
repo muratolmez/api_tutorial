@@ -2,6 +2,7 @@ import endpoints
 from protorpc import remote
 from models_classes import *
 from messages_classes import *
+from protorpc import message_types
 import datetime
 
 api_collection = endpoints.api(name='mobile', version='v1.0')
@@ -14,13 +15,15 @@ class UserPut(remote.Service):
                       path='user_put',
                       http_method='POST')
     def user_put(self, request):
-        UserModel(auth_id=request.auth_id,
+
+
+        UserModel(
+                  auth_id=request.auth_id,
                   name=request.name,
-                  surname=request.surname,
                   email=request.email,
-                  city=request.city,
                   phone=request.phone,
-                  birthday=request.birthday,
+                  city=request.city,
+                  birthday=datetime.datetime.strptime(request.birthday, '%Y-%m-%d'),
                   rank=request.rank
                   ).put()
         return message_types.VoidMessage()
@@ -44,13 +47,10 @@ class UserGet(remote.Service):
 
         user_message.auth_id = user_model.auth_id
         user_message.name = user_model.name
-        user_message.surname = user_model.surname
-        user_message.mail = user_model.mail
+        user_message.email = user_model.email
         user_message.city = user_model.city
-        user_message.gender = user_model.gender
         user_message.phone = user_model.phone
-        user_message.birthday = user_model.birthday
-        user_message.created_date = user_model.created_date
+        user_message.birthday = user_model.birthday.strftime('%Y-%m-%d')
         user_message.rank = user_model.rank
         return UserGetResponse(user_get_response=user_message)
 
@@ -118,10 +118,9 @@ class AdvertPut(remote.Service):
                     info=request.info,
                     cost=request.cost,
                     city=request.city,
-                    district=request.district,
-                    start_date=request.start_date,
-                    finish_date=request.finish_date,
-                    status=request.ad_status,
+                    start_date= datetime.datetime.strptime(request.start_date,'%Y-%m-%d'),
+                    finish_date=datetime.datetime.strptime(request.finish_date, '%Y-%m-%d'),
+                    status=request.status,
                     ).put()
 
         return message_types.VoidMessage()
@@ -147,10 +146,9 @@ class AdvertGet(remote.Service):
         advert_message.info = advert_model.info
         advert_message.cost = advert_model.cost
         advert_message.city = advert_model.city
-        advert_message.district = advert_model.district
         advert_message.created_date = advert_model.created_date
-        advert_message.start_date = advert_model.start_date
-        advert_message.finish_date = advert_model.finish_date
+        advert_message.start_date = advert_model.start_date.strftime('%Y-%m-%d')
+        advert_message.finish_date = advert_model.finish_date.strftime('%Y-%m-%d')
         advert_message.status = advert_model.status
 
         return AdvertGetResponse(advert_get_response=advert_message)
@@ -202,7 +200,7 @@ class AdvertUpdateFinishDate(remote.Service):
                       http_method='POST')
     def advert_update_finish_date(self, request):
         advert_model = AdvertModel.get_by_id(id=int(request.id))
-        advert_model.finish_date = request.finish_date
+        advert_model.finish_date = datetime.datetime.strptime(request.finish_date,'%Y-%m-%d')
         advert_model.put()
         return message_types.VoidMessage()
 
@@ -219,7 +217,7 @@ class AdvertUpdateStartDate(remote.Service):
                       http_method='POST')
     def advert_update_start_date(self, request):
         advert_model = AdvertModel.get_by_id(id=int(request.id))
-        advert_model.start_date = request.start_date
+        advert_model.start_date = datetime.datetime.strptime(request.start_date,'%Y-%m-%d')
         advert_model.put()
         return message_types.VoidMessage()
 
@@ -255,8 +253,7 @@ class AdvertList(remote.Service):
                                          and AdvertModel.status == True
                                          and AdvertModel.status == True
                                          and AdvertModel.finish_date <=
-                                         datetime.datetime.now()).fetch(20*request.page,offset=20*(int(request.page)-1))
-        advert_list_response = AdvertListResponse()
+                                         datetime.datetime.now()).fetch(20*request.page, offset=20*(int(request.page)-1))
         for advert_model_get in advert_model:
             advert_message_list = AdvertMessageList()
             advert_message_list.id = advert_model_get.key.id()
@@ -265,14 +262,12 @@ class AdvertList(remote.Service):
             advert_message_list.info = advert_model_get.info
             advert_message_list.cost = advert_model_get.cost
             advert_message_list.city = advert_model_get.city
-            advert_message_list.district = advert_model_get.district
-            advert_message_list.created_date = advert_model_get.created_date
-            advert_message_list.start_date = advert_model_get.start_date
-            advert_message_list.finish_date = advert_model_get.finish_date
+            advert_message_list.created_date = advert_model_get.created_date.strftime('%Y-%m-%d')
+            advert_message_list.start_date = advert_model_get.start_date.strftime('%Y-%m-%d')
+            advert_message_list.finish_date = advert_model_get.finish_date.strftime('%Y-%m-%d')
             advert_message_list.status = advert_model_get.status
-            advert_list_response = advert_message_list
 
-        return advert_list_response
+        return AdvertListResponse(advert_list_response=advert_message_list)
 
 
 api = endpoints.api_server([
